@@ -1,4 +1,4 @@
-```python
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -588,4 +588,4 @@ if run_button:
                     st.write("Sentiment disabled or no API key configured.")
 else:
     st.info("Configure your universe in the sidebar and click **Run Engine**.")
-```
+
