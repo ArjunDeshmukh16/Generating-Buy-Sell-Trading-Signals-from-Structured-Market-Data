@@ -411,10 +411,7 @@ with st.sidebar:
 
     include_sentiment = st.checkbox("Include sentiment", value=True)
 
-    buy_thr = st.slider("BUY threshold", 50.0, 90.0, DEFAULT_THRESHOLDS["buy"], 1.0)
-    hold_thr = st.slider("HOLD threshold", 30.0, buy_thr - 1.0, DEFAULT_THRESHOLDS["hold"], 1.0)
-
-    thresholds = {"buy": buy_thr, "hold": hold_thr}
+    thresholds = DEFAULT_THRESHOLDS
 
     st.subheader("Weights")
     w_trend = st.slider("Trend weight", 0.0, 1.0, DEFAULT_WEIGHTS["trend"], 0.05)
@@ -588,4 +585,3 @@ if run_button:
                     st.write("Sentiment disabled or no API key configured.")
 else:
     st.info("Configure your universe in the sidebar and click **Run Engine**.")
-
