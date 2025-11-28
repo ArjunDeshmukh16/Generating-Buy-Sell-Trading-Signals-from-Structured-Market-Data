@@ -30,8 +30,8 @@ NEWSAPI_ENDPOINT = "https://newsapi.org/v2/everything"
 # =========================================================
 # PAGE SETUP
 # =========================================================
-st.set_page_config(page_title="Sentiment Signal Engine", layout="wide")
-st.title("📈 Sentiment Signal Engine — Sector & Stock Scanner")
+st.set_page_config(page_title="Generating Buy/Sell Trading Signals", layout="wide")
+st.title("Generating Buy/Sell Trading Signals from Structured Market Data")
 st.caption("Pick sectors or tickers, then click **Run Engine** in the sidebar.")
 if "engine_ran" not in st.session_state:
     st.session_state["engine_ran"] = False
