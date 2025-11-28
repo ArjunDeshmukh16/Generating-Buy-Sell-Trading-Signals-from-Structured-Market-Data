@@ -430,7 +430,7 @@ def score_universe(
 with st.sidebar:
     st.header("Configuration")
 
-    mode = st.radio("Universe mode", ["By Sector", "Select Script"])
+    mode = st.radio("Universe mode", ["By Sector", "Select Script"], index=1)
 
     if mode == "By Sector":
         selected_sectors = st.multiselect(
@@ -545,7 +545,10 @@ if engine_ran:
             price_line = (
                 alt.Chart(ts_reset)
                 .mark_line(color="#4ade80", strokeWidth=3)
-                .encode(x="Date:T", y="close:Q")
+                .encode(
+                    x=alt.X("Date:T", title="Date"),
+                    y=alt.Y("close:Q", title="Close"),
+                )
             )
 
             ts_reset["signal_changed"] = ts_reset["Signal"].ne(ts_reset["Signal"].shift())
@@ -553,7 +556,7 @@ if engine_ran:
 
             signal_points = (
                 alt.Chart(markers)
-                .mark_point(size=300, filled=True, stroke="black")
+                .mark_point(size=220, filled=True, stroke="black", strokeWidth=1.5)
                 .encode(
                     x="Date:T",
                     y="close:Q",
@@ -574,7 +577,10 @@ if engine_ran:
                 )
             )
 
-            st.altair_chart(price_line + signal_points, use_container_width=True)
+            st.altair_chart(
+                (price_line + signal_points).properties(height=360),
+                use_container_width=True,
+            )
 
         # === TAB 2 — RSI ===
         with tabs[1]:
@@ -582,18 +588,28 @@ if engine_ran:
             rsi_chart = (
                 alt.Chart(ts_reset)
                 .mark_line(color="#6366f1")
-                .encode(x="Date:T", y="rsi14:Q")
+                .encode(
+                    x=alt.X("Date:T", title="Date"),
+                    y=alt.Y("rsi14:Q", title="RSI(14)"),
+                )
             )
             h30 = alt.Chart(pd.DataFrame({"y": [30]})).mark_rule(color="red").encode(y="y:Q")
             h70 = alt.Chart(pd.DataFrame({"y": [70]})).mark_rule(color="red").encode(y="y:Q")
-            st.altair_chart(rsi_chart + h30 + h70, use_container_width=True)
+            st.altair_chart((rsi_chart + h30 + h70).properties(height=240), use_container_width=True)
 
         # === TAB 3 — Volume ===
         with tabs[2]:
             st.subheader(f"{selected_ticker} — Volume Structure")
-            vol = alt.Chart(ts_reset).mark_bar(color="#60a5fa").encode(x="Date:T", y="volume:Q")
-            vol20 = alt.Chart(ts_reset).mark_line(color="orange", strokeWidth=3).encode(x="Date:T", y="vol20:Q")
-            st.altair_chart(vol + vol20, use_container_width=True)
+            vol = alt.Chart(ts_reset).mark_bar(color="#60a5fa").encode(
+                x=alt.X("Date:T", title="Date"),
+                y=alt.Y("volume:Q", title="Volume"),
+                tooltip=["Date:T","volume:Q"],
+            )
+            vol20 = alt.Chart(ts_reset).mark_line(color="orange", strokeWidth=3).encode(
+                x="Date:T",
+                y=alt.Y("vol20:Q", title="20D MA"),
+            )
+            st.altair_chart((vol + vol20).properties(height=240), use_container_width=True)
 
         # === TAB 4 — Sentiment Timeline ===
         with tabs[3]:
@@ -614,10 +630,22 @@ if engine_ran:
                         })
                     sdf = pd.DataFrame(rows).groupby("date").mean().reset_index()
 
-                    base = alt.Chart(sdf).encode(x="date:T")
-                    line1 = base.mark_line(color="#22c55e").encode(y="sentiment:Q")
-                    line2 = base.mark_line(color="orange").encode(y="decayed:Q")
-                    st.altair_chart(line1 + line2, use_container_width=True)
+                    sdf_melt = sdf.melt("date", ["sentiment", "decayed"], var_name="Series", value_name="Value")
+                    sent_chart = (
+                        alt.Chart(sdf_melt)
+                        .mark_line(strokeWidth=3)
+                        .encode(
+                            x=alt.X("date:T", title="Date"),
+                            y=alt.Y("Value:Q", title="Sentiment"),
+                            color=alt.Color(
+                                "Series:N",
+                                scale=alt.Scale(domain=["sentiment","decayed"], range=["#22c55e","orange"]),
+                                legend=alt.Legend(title="Series"),
+                            ),
+                        )
+                        .properties(height=240)
+                    )
+                    st.altair_chart(sent_chart, use_container_width=True)
             else:
                 st.info("Sentiment disabled or no API key")
 
@@ -661,9 +689,10 @@ if engine_ran:
                 .encode(
                     x="Sector:N",
                     y="Ticker:N",
-                    color=alt.Color("Score_0_100:Q", scale=alt.Scale(scheme="redyellowgreen")),
+                    color=alt.Color("Score_0_100:Q", scale=alt.Scale(scheme="redyellowgreen"), legend=alt.Legend(title="Score")),
                     tooltip=["Sector","Ticker","Score_0_100"]
                 )
+                .properties(height=320)
             )
             st.altair_chart(heat, use_container_width=True)
 else:
