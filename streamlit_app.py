@@ -90,42 +90,57 @@ if st.session_state["show_home"]:
     """, unsafe_allow_html=True)
 
     st.title("Generating Buy/Sell Trading Signals from Structured Market Data")
-    st.markdown(
-        """
-        ### How to Run the Signal Engine
-        The interface mirrors a quant research workflow so you focus on insights, not configuration.
-
-        **Step 1 — Select Your Universe**
-        - By Sector: scan all stocks in Technology, Communication, Financials, etc.
-        - By Script: manually pick tickers such as AAPL, NVDA, TSLA.
-
-        **Step 2 — Set Lookback Windows**
-        - Price lookback drives moving averages, RSI, volatility, and volume baselines.
-        - News lookback controls how many recent headlines shape sentiment.
-
-        **Step 3 — Configure Weights**
-        - Blend Trend, Momentum, Volume, Sentiment. Weights auto-normalize to sum to 1.
-
-        **Step 4 — Enable Sentiment (Optional)**
-        - Provide a NewsAPI key for real-time headlines; otherwise sentiment is neutral.
-
-        **Step 5 — Run the Engine**
-        - Click **Run Engine** to get rankings, ticker drill-downs, signals, RSI, volume, sentiment timeline, score breakdown, and sector heatmaps. Updates are instant when you tweak weights.
-        """
-    )
-
-    with st.expander("Usage Rules & Model Notes"):
+    col_left, col_right = st.columns([1, 2])
+    with col_left:
+        st.subheader("Quick Start (Sidebar)")
         st.markdown(
             """
-            - Research and educational analysis only; scores/signals are not investment recommendations.  
-            - Sentiment can be noisy; headlines may be sarcastic or irrelevant even after smoothing.  
-            - Technicals are backward-looking and cannot anticipate shocks.  
-            - A BUY signal means "conditions appear favorable," not a guarantee of upside.  
-            - Data quality matters; missing OHLCV or delayed news can affect stability.  
-            - Adjust weights by sector; different industries react differently to sentiment vs structure.  
-            - Thresholds (BUY > x, SELL < y) reflect risk appetite—tune in the sidebar.  
+            - Select sectors or individual tickers.  
+            - Set price/news lookback windows.  
+            - Tune weights for Trend, Momentum, Volume, Sentiment.  
+            - Toggle sentiment if you have a NewsAPI key.  
+            - Click **Run Engine** to rank and score your universe.  
             """
         )
+        st.markdown("Use the **Parameters** sidebar on the left to adjust these inputs.")
+
+    with col_right:
+        st.markdown(
+            """
+            ### How to Run the Signal Engine
+            The interface mirrors a quant research workflow so you focus on insights, not configuration.
+
+            **Step 1 — Select Your Universe**  
+            - By Sector: scan all stocks in Technology, Communication, Financials, etc.  
+            - By Script: manually pick tickers such as AAPL, NVDA, TSLA.  
+
+            **Step 2 — Set Lookback Windows**  
+            - Price lookback drives moving averages, RSI, volatility, and volume baselines.  
+            - News lookback controls how many recent headlines shape sentiment.  
+
+            **Step 3 — Configure Weights**  
+            - Blend Trend, Momentum, Volume, Sentiment. Weights auto-normalize to sum to 1.  
+
+            **Step 4 — Enable Sentiment (Optional)**  
+            - Provide a NewsAPI key for real-time headlines; otherwise sentiment is neutral.  
+
+            **Step 5 — Run the Engine**  
+            - Click **Run Engine** to get rankings, ticker drill-downs, signals, RSI, volume, sentiment timeline, score breakdown, and sector heatmaps. Updates are instant when you tweak weights.  
+            """
+        )
+
+        with st.expander("Usage Rules & Model Notes"):
+            st.markdown(
+                """
+                - Research and educational analysis only; scores/signals are not investment recommendations.  
+                - Sentiment can be noisy; headlines may be sarcastic or irrelevant even after smoothing.  
+                - Technicals are backward-looking and cannot anticipate shocks.  
+                - A BUY signal means "conditions appear favorable," not a guarantee of upside.  
+                - Data quality matters; missing OHLCV or delayed news can affect stability.  
+                - Adjust weights by sector; different industries react differently to sentiment vs structure.  
+                - Thresholds (BUY > x, SELL < y) reflect risk appetite—tune in the sidebar.  
+                """
+            )
     st.stop()
 else:
     st.title("Signal Engine Results")
