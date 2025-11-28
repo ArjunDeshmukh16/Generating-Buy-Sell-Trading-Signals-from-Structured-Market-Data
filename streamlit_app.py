@@ -362,8 +362,12 @@ def fetch_news_for_ticker(
     if not api_key:
         return []
 
+    company = TICKER_NAME.get(ticker.upper(), "")
+    # Broaden the query to capture both ticker and common company name
+    q = f'("{ticker}" OR "{company}")' if company else ticker
+
     params = {
-        "q": f"{ticker} stock",
+        "q": q,
         "from": (datetime.now(timezone.utc) - timedelta(days=lookback_days)).strftime("%Y-%m-%d"),
         "language": "en",
         "sortBy": "publishedAt",
