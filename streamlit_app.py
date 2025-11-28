@@ -428,7 +428,7 @@ def score_universe(
 # SIDEBAR UI
 # =========================================================
 with st.sidebar:
-    st.header("Configuration")
+    st.header("Parameters")
 
     mode = st.radio("Universe mode", ["By Sector", "Select Script"], index=1)
 
