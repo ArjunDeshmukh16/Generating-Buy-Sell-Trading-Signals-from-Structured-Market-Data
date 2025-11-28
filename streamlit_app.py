@@ -585,6 +585,11 @@ if engine_ran:
         # === TAB 2 — RSI ===
         with tabs[1]:
             st.subheader(f"{selected_ticker} — RSI(14)")
+            bands = pd.DataFrame({
+                "level": [30, 70],
+                "Label": ["Oversold (30)", "Overbought (70)"],
+                "Color": ["#ef4444", "#fb923c"],
+            })
             rsi_chart = (
                 alt.Chart(ts_reset)
                 .mark_line(color="#6366f1")
@@ -593,9 +598,22 @@ if engine_ran:
                     y=alt.Y("rsi14:Q", title="RSI(14)"),
                 )
             )
-            h30 = alt.Chart(pd.DataFrame({"y": [30]})).mark_rule(color="red").encode(y="y:Q")
-            h70 = alt.Chart(pd.DataFrame({"y": [70]})).mark_rule(color="red").encode(y="y:Q")
-            st.altair_chart((rsi_chart + h30 + h70).properties(height=240), use_container_width=True)
+            band_rules = (
+                alt.Chart(bands)
+                .mark_rule(strokeWidth=2)
+                .encode(
+                    y="level:Q",
+                    color=alt.Color(
+                        "Label:N",
+                        scale=alt.Scale(
+                            domain=list(bands["Label"]),
+                            range=list(bands["Color"])
+                        ),
+                        legend=alt.Legend(title="RSI Zones"),
+                    ),
+                )
+            )
+            st.altair_chart((rsi_chart + band_rules).properties(height=240), use_container_width=True)
 
         # === TAB 3 — Volume ===
         with tabs[2]:
@@ -682,18 +700,38 @@ if engine_ran:
         # === TAB 6 — Sector Heatmap ===
         with tabs[5]:
             st.subheader("Sector Heatmap — Composite Score")
-            heat_df = scores_df[["Ticker","Sector","Score_0_100"]]
+            heat_df = scores_df[["Ticker","Sector","Score_0_100","Signal"]]
             heat = (
                 alt.Chart(heat_df)
-                .mark_rect()
+                .mark_rect(stroke="white", strokeWidth=0.5)
                 .encode(
                     x="Sector:N",
                     y="Ticker:N",
                     color=alt.Color("Score_0_100:Q", scale=alt.Scale(scheme="redyellowgreen"), legend=alt.Legend(title="Score")),
-                    tooltip=["Sector","Ticker","Score_0_100"]
+                    tooltip=["Sector","Ticker","Score_0_100","Signal"]
                 )
-                .properties(height=320)
+                .properties(height=300)
             )
-            st.altair_chart(heat, use_container_width=True)
+            heat_text = (
+                alt.Chart(heat_df)
+                .mark_text(fontSize=11, fontWeight="bold")
+                .encode(
+                    x="Sector:N",
+                    y="Ticker:N",
+                    text=alt.Text("Score_0_100:Q", format=".0f"),
+                    color=alt.value("black"),
+                )
+            )
+            st.altair_chart(heat + heat_text, use_container_width=True)
+
+        st.markdown(
+            """
+            **How to read these visuals:** Price & Signals marks BUY/HOLD/SELL turns; RSI adds overbought/oversold bands; Volume shows bars plus 20-day trend; Sentiment compares raw vs. decay-weighted tone; Score Breakdown weights each component; Heatmap stacks composite scores by sector and ticker.
+
+            **Scoring math:** Each component is normalized 0–100 then combined as  
+            `Composite = Trend·w_trend + Momentum·w_momentum + Volume·w_vol + Sentiment·w_sent`.  
+            Signals use thresholds (`BUY ≥ {buy:.0f}`, `HOLD {hold:.0f}–{buy:.0f}`, `SELL < {hold:.0f}`) from the sidebar sliders. Weights are normalized to sum to 1.
+            """.format(buy=thresholds["buy"], hold=thresholds["hold"])
+        )
 else:
     st.info("Configure your universe in the sidebar and click **Run Engine**.")
