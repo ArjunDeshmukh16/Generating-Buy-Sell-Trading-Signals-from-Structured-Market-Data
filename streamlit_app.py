@@ -32,6 +32,11 @@ NEWSAPI_ENDPOINT = "https://newsapi.org/v2/everything"
 # =========================================================
 st.set_page_config(page_title="Generating Buy/Sell Trading Signals", layout="wide")
 
+if "engine_ran" not in st.session_state:
+    st.session_state["engine_ran"] = False
+if "show_home" not in st.session_state:
+    st.session_state["show_home"] = True
+
 # =========================
 # BEAUTIFUL FRONT PAGE HERO
 # =========================
@@ -67,62 +72,62 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<div class='hero'>
-    <div class='hero-title'>📡 Generating Buy/Sell Trading Signals from Structured Market Data</div>
-    <div class='hero-sub'>
-        A unified engine that fuses technical indicators, volume structure, and real-time sentiment into a single actionable score.
+if st.session_state["show_home"]:
+    st.markdown("""
+    <div class='hero'>
+        <div class='hero-title'>Generating Buy/Sell Trading Signals from Structured Market Data</div>
+        <div class='hero-sub'>
+            A unified engine that fuses technical indicators, volume structure, and real-time sentiment into a single actionable score.
+        </div>
+        <div class='info-box'>
+            <b>How to Use:</b><br>
+            1. Select sectors or individual tickers in the sidebar.<br>
+            2. Adjust lookback windows and factor weights.<br>
+            3. Enable sentiment (requires API key).<br>
+            4. Click <b>Run Engine</b> to generate rankings and signals.<br>
+        </div>
     </div>
-    <div class='info-box'>
-        <b>How to Use:</b><br>
-        1. Select sectors or individual tickers in the sidebar.<br>
-        2. Adjust lookback windows and factor weights.<br>
-        3. Enable sentiment (requires API key).<br>
-        4. Click <b>Run Engine</b> to generate rankings and signals.<br>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-st.title("Generating Buy/Sell Trading Signals from Structured Market Data")
-st.markdown(
-    """
-    ### How to Run the Signal Engine
-    The interface mirrors a quant research workflow so you focus on insights, not configuration.
-
-    **Step 1 — Select Your Universe**
-    - By Sector: scan all stocks in Technology, Communication, Financials, etc.
-    - By Script: manually pick tickers such as AAPL, NVDA, TSLA.
-
-    **Step 2 — Set Lookback Windows**
-    - Price lookback drives moving averages, RSI, volatility, and volume baselines.
-    - News lookback controls how many recent headlines shape sentiment.
-
-    **Step 3 — Configure Weights**
-    - Blend Trend, Momentum, Volume, Sentiment. Weights auto-normalize to sum to 1.
-
-    **Step 4 — Enable Sentiment (Optional)**
-    - Provide a NewsAPI key for real-time headlines; otherwise sentiment is neutral.
-
-    **Step 5 — Run the Engine**
-    - Click **Run Engine** to get rankings, ticker drill-downs, signals, RSI, volume, sentiment timeline, score breakdown, and sector heatmaps. Updates are instant when you tweak weights.
-    """
-)
-
-with st.expander("Usage Rules & Model Notes"):
+    st.title("Generating Buy/Sell Trading Signals from Structured Market Data")
     st.markdown(
         """
-        - Research and educational analysis only; scores/signals are not investment recommendations.  
-        - Sentiment can be noisy; headlines may be sarcastic or irrelevant even after smoothing.  
-        - Technicals are backward-looking and cannot anticipate shocks.  
-        - A BUY signal means "conditions appear favorable," not a guarantee of upside.  
-        - Data quality matters; missing OHLCV or delayed news can affect stability.  
-        - Adjust weights by sector; different industries react differently to sentiment vs structure.  
-        - Thresholds (BUY > x, SELL < y) reflect risk appetite—tune in the sidebar.  
+        ### How to Run the Signal Engine
+        The interface mirrors a quant research workflow so you focus on insights, not configuration.
+
+        **Step 1 — Select Your Universe**
+        - By Sector: scan all stocks in Technology, Communication, Financials, etc.
+        - By Script: manually pick tickers such as AAPL, NVDA, TSLA.
+
+        **Step 2 — Set Lookback Windows**
+        - Price lookback drives moving averages, RSI, volatility, and volume baselines.
+        - News lookback controls how many recent headlines shape sentiment.
+
+        **Step 3 — Configure Weights**
+        - Blend Trend, Momentum, Volume, Sentiment. Weights auto-normalize to sum to 1.
+
+        **Step 4 — Enable Sentiment (Optional)**
+        - Provide a NewsAPI key for real-time headlines; otherwise sentiment is neutral.
+
+        **Step 5 — Run the Engine**
+        - Click **Run Engine** to get rankings, ticker drill-downs, signals, RSI, volume, sentiment timeline, score breakdown, and sector heatmaps. Updates are instant when you tweak weights.
         """
     )
 
-if "engine_ran" not in st.session_state:
-    st.session_state["engine_ran"] = False
+    with st.expander("Usage Rules & Model Notes"):
+        st.markdown(
+            """
+            - Research and educational analysis only; scores/signals are not investment recommendations.  
+            - Sentiment can be noisy; headlines may be sarcastic or irrelevant even after smoothing.  
+            - Technicals are backward-looking and cannot anticipate shocks.  
+            - A BUY signal means "conditions appear favorable," not a guarantee of upside.  
+            - Data quality matters; missing OHLCV or delayed news can affect stability.  
+            - Adjust weights by sector; different industries react differently to sentiment vs structure.  
+            - Thresholds (BUY > x, SELL < y) reflect risk appetite—tune in the sidebar.  
+            """
+        )
+else:
+    st.title("Signal Engine Results")
 
 # =========================================================
 # UNIVERSE: SECTORS → TICKERS
@@ -581,8 +586,13 @@ with st.sidebar:
     )
 
     run_button = st.button("Run Engine")
+    home_button = st.button("Home")
     if run_button:
         st.session_state["engine_ran"] = True
+        st.session_state["show_home"] = False
+    if home_button:
+        st.session_state["engine_ran"] = False
+        st.session_state["show_home"] = True
 
 
 # =========================================================
