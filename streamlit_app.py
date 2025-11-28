@@ -31,8 +31,96 @@ NEWSAPI_ENDPOINT = "https://newsapi.org/v2/everything"
 # PAGE SETUP
 # =========================================================
 st.set_page_config(page_title="Generating Buy/Sell Trading Signals", layout="wide")
+
+# =========================
+# BEAUTIFUL FRONT PAGE HERO
+# =========================
+st.markdown("""
+<style>
+.hero {
+    padding: 40px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #2e2e3a 0%, #17171c 100%);
+    border: 1px solid #3d3d4a;
+    margin-bottom: 25px;
+}
+.hero-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -1px;
+}
+.hero-sub {
+    font-size: 18px;
+    color: #cfcfcf;
+    padding-top: 8px;
+}
+.info-box {
+    padding: 18px;
+    margin-top: 18px;
+    background: rgba(79, 120, 203, 0.15);
+    border-left: 4px solid #7493ff;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #e1e1e1;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class='hero'>
+    <div class='hero-title'>📡 Generating Buy/Sell Trading Signals from Structured Market Data</div>
+    <div class='hero-sub'>
+        A unified engine that fuses technical indicators, volume structure, and real-time sentiment into a single actionable score.
+    </div>
+    <div class='info-box'>
+        <b>How to Use:</b><br>
+        1. Select sectors or individual tickers in the sidebar.<br>
+        2. Adjust lookback windows and factor weights.<br>
+        3. Enable sentiment (requires API key).<br>
+        4. Click <b>Run Engine</b> to generate rankings and signals.<br>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 st.title("Generating Buy/Sell Trading Signals from Structured Market Data")
-st.caption("Pick sectors or tickers, then click **Run Engine** in the sidebar.")
+st.markdown(
+    """
+    ### How to Run the Signal Engine
+    The interface mirrors a quant research workflow so you focus on insights, not configuration.
+
+    **Step 1 — Select Your Universe**
+    - By Sector: scan all stocks in Technology, Communication, Financials, etc.
+    - By Script: manually pick tickers such as AAPL, NVDA, TSLA.
+
+    **Step 2 — Set Lookback Windows**
+    - Price lookback drives moving averages, RSI, volatility, and volume baselines.
+    - News lookback controls how many recent headlines shape sentiment.
+
+    **Step 3 — Configure Weights**
+    - Blend Trend, Momentum, Volume, Sentiment. Weights auto-normalize to sum to 1.
+
+    **Step 4 — Enable Sentiment (Optional)**
+    - Provide a NewsAPI key for real-time headlines; otherwise sentiment is neutral.
+
+    **Step 5 — Run the Engine**
+    - Click **Run Engine** to get rankings, ticker drill-downs, signals, RSI, volume, sentiment timeline, score breakdown, and sector heatmaps. Updates are instant when you tweak weights.
+    """
+)
+
+with st.expander("Usage Rules & Model Notes"):
+    st.markdown(
+        """
+        - Research and educational analysis only; scores/signals are not investment recommendations.  
+        - Sentiment can be noisy; headlines may be sarcastic or irrelevant even after smoothing.  
+        - Technicals are backward-looking and cannot anticipate shocks.  
+        - A BUY signal means "conditions appear favorable," not a guarantee of upside.  
+        - Data quality matters; missing OHLCV or delayed news can affect stability.  
+        - Adjust weights by sector; different industries react differently to sentiment vs structure.  
+        - Thresholds (BUY > x, SELL < y) reflect risk appetite—tune in the sidebar.  
+        """
+    )
+
 if "engine_ran" not in st.session_state:
     st.session_state["engine_ran"] = False
 
