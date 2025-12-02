@@ -179,8 +179,8 @@ def render_home():
 # UNIVERSE: SECTORS → TICKERS
 # =========================================================
 SECTOR_UNIVERSE: Dict[str, List[str]] = {
-    "Technology": ["AAPL", "MSFT", "NVDA", "AVGO", "ADBE", "CSCO", "AMD", "CRM", "ORCL", "INTC", "QCOM", "TXN", "NOW", "PANW", "SNOW"],
-    "Communication": ["GOOGL", "META", "NFLX", "DIS", "CMCSA", "TMUS", "VZ", "T", "CHTR", "EA", "ATVI", "RBLX", "SPOT"],
+    "Technology": ["AAPL", "MSFT", "NVDA", "ADBE", "CSCO", "AMD", "CRM", "ORCL", "INTC", "QCOM", "TXN", "NOW", "PANW", "SNOW"],
+    "Communication": ["GOOGL", "META", "NFLX", "DIS", "CMCSA", "TMUS", "VZ", "T", "CHTR", "EA", "RBLX", "SPOT"],
     "Consumer Discretionary": ["AMZN", "TSLA", "HD", "MCD", "NKE", "LOW", "SBUX", "BKNG", "MELI", "ROST", "TJX", "GM", "F"],
     "Consumer Staples": ["PEP", "KO", "WMT", "COST", "PG", "MO", "MDLZ", "CL", "KMB", "KR", "ADM", "GIS", "HSY"],
     "Financials": ["JPM", "BAC", "GS", "MS", "BLK", "AXP", "C", "SCHW", "BK", "TFC", "USB", "PGR", "ICE"],
@@ -200,7 +200,6 @@ TICKER_NAME: Dict[str, str] = {
     "AAPL": "Apple Inc.",
     "MSFT": "Microsoft Corp.",
     "NVDA": "NVIDIA Corp.",
-    "AVGO": "Broadcom Inc.",
     "ADBE": "Adobe Inc.",
     "CSCO": "Cisco Systems",
     "AMD": "Advanced Micro Devices",
@@ -286,7 +285,6 @@ TICKER_NAME: Dict[str, str] = {
     "T": "AT&T",
     "CHTR": "Charter Communications",
     "EA": "Electronic Arts",
-    "ATVI": "Activision Blizzard",
     "RBLX": "Roblox",
     "SPOT": "Spotify",
     "BKNG": "Booking Holdings",
