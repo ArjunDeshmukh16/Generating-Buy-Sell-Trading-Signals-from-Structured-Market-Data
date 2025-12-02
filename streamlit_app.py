@@ -358,7 +358,7 @@ def fetch_news_for_ticker(
     lookback_days: int,
     api_key: str,
 ) -> List[NewsArticle]:
-    """Fetch recent news for a ticker via NewsAPI."""
+    """Fetch recent news for a ticker via NewsAPI with finance-focused filters."""
     if not api_key:
         return []
 
@@ -378,6 +378,10 @@ def fetch_news_for_ticker(
         "investing.com",
         "finance.yahoo.com",
         "fortune.com",
+        "businessinsider.com",
+        "nasdaq.com",
+        "cnbc.com",
+        "apnews.com",
     ]
 
     ticker_term = f'"{ticker}"'
@@ -392,9 +396,9 @@ def fetch_news_for_ticker(
         "qInTitle": q_title,
         "from": (datetime.now(timezone.utc) - timedelta(days=lookback_days)).strftime("%Y-%m-%d"),
         "language": "en",
-        "searchIn": "title",
+        "searchIn": "title,description",
         "sortBy": "publishedAt",
-        "pageSize": 50,
+        "pageSize": 100,
         "domains": ",".join(domain_allowlist),
         "apiKey": api_key,
     }
@@ -404,6 +408,16 @@ def fetch_news_for_ticker(
         resp.raise_for_status()
         payload = resp.json()
         raw_articles = payload.get("articles", [])
+        # If too strict, retry with a slightly looser search (keep domain allowlist)
+        if not raw_articles:
+            fallback_params = params.copy()
+            fallback_params.pop("qInTitle", None)
+            fallback_params["searchIn"] = "title,description,content"
+            fallback_params["q"] = f'("{ticker}") AND {finance_context}'
+            resp = requests.get(NEWSAPI_ENDPOINT, params=fallback_params, timeout=10)
+            resp.raise_for_status()
+            payload = resp.json()
+            raw_articles = payload.get("articles", [])
     except Exception as exc:
         st.warning(f"[NEWS] Failed for {ticker}: {exc}")
         return []
