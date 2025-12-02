@@ -363,15 +363,39 @@ def fetch_news_for_ticker(
         return []
 
     company = TICKER_NAME.get(ticker.upper(), "")
-    # Broaden the query to capture both ticker and common company name
-    q = f'("{ticker}" OR "{company}")' if company else ticker
+
+    # Favor headlines explicitly mentioning the ticker/company in the title,
+    # and constrain sources to finance-heavy outlets to avoid random blogs.
+    domain_allowlist = [
+        "reuters.com",
+        "bloomberg.com",
+        "wsj.com",
+        "cnbc.com",
+        "marketwatch.com",
+        "seekingalpha.com",
+        "fool.com",
+        "barrons.com",
+        "investing.com",
+        "finance.yahoo.com",
+        "fortune.com",
+    ]
+
+    ticker_term = f'"{ticker}"'
+    company_term = f'"{company}"' if company else ""
+    # Bias toward finance context words to reduce noise
+    finance_context = "(stock OR shares OR earnings OR company OR Inc OR Corp OR PLC)"
+    q_title = " OR ".join(filter(None, [ticker_term, company_term])) or ticker
+    q = f"({q_title}) AND {finance_context}"
 
     params = {
         "q": q,
+        "qInTitle": q_title,
         "from": (datetime.now(timezone.utc) - timedelta(days=lookback_days)).strftime("%Y-%m-%d"),
         "language": "en",
+        "searchIn": "title",
         "sortBy": "publishedAt",
         "pageSize": 50,
+        "domains": ",".join(domain_allowlist),
         "apiKey": api_key,
     }
 
