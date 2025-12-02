@@ -980,10 +980,8 @@ if engine_ran:
         with sentiment_tab:
             st.subheader(f"{selected_ticker} — News Sentiment Timeline")
 
-            if include_sentiment and NEWSAPI_KEY:
-                if not news_articles:
-                    st.info("No sentiment data")
-                else:
+            if include_sentiment:
+                if news_articles:
                     rows = []
                     for a in news_articles:
                         pol = TextBlob(f"{a.title} {a.description or ''}").sentiment.polarity
@@ -1038,21 +1036,24 @@ if engine_ran:
                     st.markdown("**Latest headlines**")
                     sorted_news = sorted(news_articles, key=lambda a: a.published_at, reverse=True)[:10]
                     for art in sorted_news:
-                        pol = TextBlob(f"{art.title} {art.description or ''}").sentiment.polarity
+                        pol = TextBlob(f"{art.title} {a.description or ''}").sentiment.polarity
                         published = art.published_at.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
                         st.markdown(
                             f"- [{art.title}]({art.url}) — {published} — sentiment {pol:+.2f}"
                         )
-            else:
-                st.info("Sentiment disabled or no API key")
+                else:
+                    st.markdown(f"No headlines found; using fallback sentiment {SENTIMENT_FALLBACK:+.2f}.")
 
         # === Score Breakdown ===
         st.subheader(f"{selected_ticker} — Component Score Breakdown")
 
         tech = add_technical_features(df_price).iloc[-1]
         sent_val = 0.0
-        if include_sentiment and NEWSAPI_KEY and news_articles:
-            sent_val = score_headlines(news_articles)
+        if include_sentiment:
+            if news_articles:
+                sent_val = score_headlines(news_articles)
+            else:
+                sent_val = SENTIMENT_FALLBACK
 
         comp = {
             "Trend": trend_score(tech),
