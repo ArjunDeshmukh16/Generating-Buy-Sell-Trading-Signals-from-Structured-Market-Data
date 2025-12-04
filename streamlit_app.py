@@ -900,7 +900,10 @@ if engine_ran:
         weights=weights,
         thresholds=thresholds,
     )
-    st.dataframe(scores_df, use_container_width=True)
+    display_scores_df = scores_df.copy()
+    if "Score_0_100" in display_scores_df.columns and not display_scores_df.empty:
+        display_scores_df["Score_0_100"] = display_scores_df["Score_0_100"].round(0).astype(int)
+    st.dataframe(display_scores_df, use_container_width=True)
 
     if not scores_df.empty:
         st.subheader("Ticker Details")
