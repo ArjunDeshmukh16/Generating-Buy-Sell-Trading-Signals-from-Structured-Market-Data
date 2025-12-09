@@ -418,7 +418,10 @@ def _normalize_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
     else:
         df.columns = [str(col).lower() for col in df.columns]
 
-    df.index = pd.to_datetime(df.index)
+    idx = pd.to_datetime(df.index)
+    if getattr(idx, "tz", None) is not None:
+        idx = idx.tz_convert(None)
+    df.index = idx
 
     # Some responses only return adj close; keep a close column for downstream calc.
     if "close" not in df.columns and "adj close" in df.columns:
@@ -458,7 +461,7 @@ def fetch_ohlcv(ticker: str, lookback_days: int) -> pd.DataFrame:
         raise ValueError(f"No OHLCV data for {ticker}")
 
     # Keep only requested window (plus small buffer to ensure technicals compute)
-    window_start = end_date - timedelta(days=lookback_days + 10)
+    window_start = (end_date - timedelta(days=lookback_days + 10)).replace(tzinfo=None)
     df = df[df.index >= window_start]
 
     return df
