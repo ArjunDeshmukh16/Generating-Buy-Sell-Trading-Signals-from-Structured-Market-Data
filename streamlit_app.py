@@ -408,6 +408,25 @@ class NewsArticle:
 # =========================================================
 # DATA FUNCTIONS
 # =========================================================
+def _normalize_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
+    """Standardize yfinance output and make sure close/volume exist."""
+    if df.empty:
+        return df
+
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = [str(col[0]).lower() for col in df.columns]
+    else:
+        df.columns = [str(col).lower() for col in df.columns]
+
+    df.index = pd.to_datetime(df.index)
+
+    # Some responses only return adj close; keep a close column for downstream calc.
+    if "close" not in df.columns and "adj close" in df.columns:
+        df["close"] = df["adj close"]
+
+    return df
+
+
 @st.cache_data(show_spinner=False)
 def fetch_ohlcv(ticker: str, lookback_days: int) -> pd.DataFrame:
     """Fetch OHLCV data via yfinance."""
@@ -422,16 +441,26 @@ def fetch_ohlcv(ticker: str, lookback_days: int) -> pd.DataFrame:
         auto_adjust=False,
     )
 
-    if df.empty:
+    df = _normalize_ohlcv(df)
+
+    # yfinance intermittently returns empty; retry with history() and broader period.
+    if df.empty or {"close", "volume"}.difference(df.columns):
+        ticker_obj = yf.Ticker(ticker)
+        alt = ticker_obj.history(period=f"{lookback_days}d", interval="1d", auto_adjust=False)
+        df = _normalize_ohlcv(alt)
+
+    if df.empty or {"close", "volume"}.difference(df.columns):
+        # Last resort: fetch max period to satisfy long lookbacks
+        alt = yf.Ticker(ticker).history(period="max", interval="1d", auto_adjust=False)
+        df = _normalize_ohlcv(alt)
+
+    if df.empty or {"close", "volume"}.difference(df.columns):
         raise ValueError(f"No OHLCV data for {ticker}")
 
-    # Flatten multi-index if present and lowercase columns
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = [str(col[0]).lower() for col in df.columns]
-    else:
-        df.columns = [str(col).lower() for col in df.columns]
+    # Keep only requested window (plus small buffer to ensure technicals compute)
+    window_start = end_date - timedelta(days=lookback_days + 10)
+    df = df[df.index >= window_start]
 
-    df.index = pd.to_datetime(df.index)
     return df
 
 
